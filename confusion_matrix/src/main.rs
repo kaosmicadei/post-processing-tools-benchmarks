@@ -1,31 +1,43 @@
-use ndarray::{array, Array1, Axis, Order};
+use ndarray::{array, Array1, Array2, Axis, Order};
 
 fn bit_swap0(idx: usize, value: usize) -> usize {
   let x = (value ^ (value >> idx)) & 1;
   value ^ ((x << idx) | x)
 }
 
-fn main() {
-  let data = Array1::from_iter(1..=8);
-  let m = array![[1, 2], [3, 4]];
+fn apply_confusion_matrix(m: &Array2<f32>, data: &Array1<f32>) -> Array1<f32> {
+  assert!(data.len().is_power_of_two(), "data must have 2^N elements");
+  assert_eq!(m.dim(), (2, 2), "m must be a 2x2 matrix.");
 
-  let mut data = data.to_shape(((2, 4), Order::ColumnMajor)).unwrap();
+  let rank = (data.len() as f32).log2() as usize;
+  let half_len = data.len() >> 1;
 
-  for i in 0..3 {
-    // let order: [usize; 8] = core::array::from_fn(|v| bit_swap0(i, v));
+  let mut res = data
+    .to_shape(((2, half_len), Order::ColumnMajor))
+    .unwrap();
+
+  for i in 0..rank {
     let order: Vec<_> = (0..8).map(|v| bit_swap0(i, v)).collect();
 
-    let reordered = data
+    let reordered = res
       .flatten_with_order(Order::ColumnMajor)
       .select(Axis(0), &order);
 
     let as_matirx = reordered
-      .to_shape(((2, 4), Order::ColumnMajor))
+      .to_shape(((2, half_len), Order::ColumnMajor))
       .unwrap();
 
-    data = m.dot(&as_matirx).into();
+    res = m.dot(&as_matirx).into();
   }
 
-  println!("{}", data.flatten());
+    res.flatten().into_owned()
+}
+
+fn main() {
+  let data = Array1::from_iter((1..=8).map(|i| i as f32));
+  let m = array![[1.0, 2.0], [3.0, 4.0]];
+
+  let result = apply_confusion_matrix(&m, &data);
+  println!("{}", result);
   // [153, 351, 345, 791, 333, 763, 749, 1715]
 }
