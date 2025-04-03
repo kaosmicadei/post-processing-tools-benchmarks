@@ -1,4 +1,4 @@
-use ndarray::{Array1, Array2, ArrayView, Order};
+use ndarray::{Array1, Array2, Order};
 
 fn bit_swap0(idx: usize, value: usize) -> usize {
   let x = (value ^ (value >> idx)) & 1;
@@ -22,12 +22,13 @@ pub fn apply(m: &Array2<f32>, data: &Array1<f32>) -> Array1<f32> {
     let raw_tmp = tmp.as_slice_mut().unwrap();
 
     raw_tmp
-        .iter_mut()
-        .enumerate()
-        .for_each(|(j, v)| *v = raw_view[bit_swap0(i, j)]);
+      .iter_mut()
+      .enumerate()
+      .for_each(|(j, v)| *v = raw_view[bit_swap0(i, j)]);
+      // Since this as borrowed as mutable, the transformation propagates back
+      // to the `tmp` view.
 
-    let reordered = ArrayView::from_shape((half_len, 2), &raw_tmp).unwrap();
-    res.assign(&reordered.dot(m));
+    res.assign(&tmp.dot(m));
   }
 
   // Fast flatten transposed.
