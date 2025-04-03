@@ -3,5 +3,13 @@ name = "confusion_matrix"
 version = "0.1.0"
 edition = "2024"
 
+[lib]
+crate-type = ["cdylib"]
+
 [dependencies]
 ndarray = "0.16"
+# ndarray = { version = "0.16", features = ["blas"] }
+# blas-src = { version = "0.11", features = ["openblas"] }
+# openblas-src = { version = "0.10", features = ["cblas", "static"] }
+pyo3 = { version = "0.24", features = ["extension-module"] }
+numpy = "0.24"
