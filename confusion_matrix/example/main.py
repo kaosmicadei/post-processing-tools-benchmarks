@@ -10,6 +10,7 @@ def apply(m, data):
         res = np.tensordot(m, res, axes=(1, i))
     return res.transpose().flatten()
 
+
 # m = np.array([[1, 2], [3, 4]], dtype=np.float32)
 # data = np.array(range(1, 9), dtype=np.float32)
 # result1 = apply(m, data)
