@@ -7,7 +7,7 @@ edition = "2024"
 crate-type = ["cdylib"]
 
 [dependencies]
-nalgebra = "0.33"
+ndarray = "0.16"
 rayon = "1.10"
 pyo3 = { version = "0.24", features = ["extension-module"] }
 numpy = "0.24"

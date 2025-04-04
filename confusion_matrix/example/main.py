@@ -28,7 +28,7 @@ print(f"Elapsed time: {d1}")
 
 
 start = datetime.now()
-result2 = confusion_matrix.apply(m, data)
+result2 = confusion_matrix.apply(m.T, data)
 end = datetime.now()
 d2 = end - start
 print(result2)
