@@ -1,44 +1,43 @@
-use ndarray::{Array1, Array2, Order};
+use nalgebra::{DMatrix, DVector};
+use rayon::prelude::*;
 
 fn bit_swap0(idx: usize, value: usize) -> usize {
   let x = (value ^ (value >> idx)) & 1;
   value ^ ((x << idx) | x)
 }
 
-pub fn apply(m: &Array2<f32>, data: &Array1<f32>) -> Array1<f32> {
+pub fn apply(m: &DMatrix<f32>, data: &DVector<f32>) -> DVector<f32> {
   assert!(data.len().is_power_of_two(), "data must have 2^N elements");
-  assert_eq!(m.dim(), (2, 2), "m must be a 2x2 matrix.");
 
-  let rank = (data.len() as f32).log2() as usize;
-  let half_len = data.len() >> 1;
+  let len = data.len();
+  let rank = len.trailing_zeros() as usize;
+  let half_len = len / 2;
 
-  let mut res = data.to_shape((half_len, 2)).unwrap();
+  let mut res = DMatrix::from_column_slice(2, half_len, data.as_slice());
   let mut tmp = res.clone();
 
   for i in 0..rank {
-    // Fast "flatten": access the raw position through slice.
-    let raw_view = res.as_slice()  // WARNING! Only works with row major!
-      .unwrap();
-    let raw_tmp = tmp.as_slice_mut().unwrap();
+    let raw_view = res.as_slice();
+    let raw_tmp = tmp.as_mut_slice();
 
     raw_tmp
-      .iter_mut()
+      .par_iter_mut()
       .enumerate()
       .for_each(|(j, v)| *v = raw_view[bit_swap0(i, j)]);
       // Since this as borrowed as mutable, the transformation propagates back
       // to the `tmp` view.
 
-    res.assign(&tmp.dot(m));
+    res = m * &tmp;
   }
 
   // Fast flatten transposed.
-  res.flatten_with_order(Order::ColumnMajor).into_owned()
+  DVector::from_column_slice(res.transpose().as_slice())
 }
 
 #[cfg(test)]
 mod tests {
   use super::*;
-  use ndarray::array;
+  use nalgebra::{DMatrix, DVector};
 
   #[test]
   fn test_bitswap() {
@@ -47,10 +46,10 @@ mod tests {
 
   #[test]
   fn test_multiply_m() {
-    let data = Array1::from_iter((1..=8).map(|i| i as f32));
-    let m = array![[1.0, 3.0], [2.0, 4.0]];
+    let data = DVector::from_fn(8, |i, _| (i+1) as f32);
+    let m = DMatrix::from_row_slice(2, 2, &[1.0, 2.0, 3.0, 4.0]);
     let result = apply(&m, &data);
-    let target = array![153.0, 351.0, 345.0, 791.0, 333.0, 763.0, 749.0, 1715.0];
+    let target = DVector::from_row_slice(&[153.0, 351.0, 345.0, 791.0, 333.0, 763.0, 749.0, 1715.0]);
     assert_eq!(result, target);
   }
 }

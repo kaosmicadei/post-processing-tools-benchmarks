@@ -7,11 +7,7 @@ edition = "2024"
 crate-type = ["cdylib"]
 
 [dependencies]
-ndarray = "0.16"
-# ndarray = { version = "0.16", features = ["matrixmultiply-threading"] }
-# ndarray = { version = "0.16", features = ["blas"] }
-# blas-src = { version = "0.11", features = ["accelerate"] }
-# blas-src = { version = "0.11", features = ["openblas"] }
-# openblas-src = { version = "0.10", features = ["cblas", "static"] }
+nalgebra = "0.33"
+rayon = "1.10"
 pyo3 = { version = "0.24", features = ["extension-module"] }
 numpy = "0.24"
