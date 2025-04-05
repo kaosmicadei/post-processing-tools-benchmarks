@@ -35,4 +35,4 @@ print(result2)
 print(f"Elapsed time: {d2}")
 
 assert np.allclose(result1, result2)
-print(f"Speedup: {d1 / d2}")
+print(f"Speedup: {d2 / d1}")
