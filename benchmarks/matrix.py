@@ -4,6 +4,8 @@ from datetime import datetime
 
 from functools import reduce
 import numpy as np
+
+# Rust implementation of the function describe in the tensor/README.
 import tensor
 
 logger = logging.getLogger(__name__)
@@ -17,7 +19,7 @@ logging.basicConfig(
 KRON_LIMIT = 15
 
 
-def apply(m, data):
+def multiply(m, data):
     """
     Equivalente to `np.kron([m] * N) @ data`, but avoiding the memory overhead
     like np.kron.
@@ -60,7 +62,7 @@ if N <= KRON_LIMIT:
 # Using tensordot.
 logger.info("Running with np.tensordot.")
 start = datetime.now()
-result1 = apply(m, data)
+result1 = multiply(m, data)
 d1 = datetime.now() - start
 if N <= KRON_LIMIT:
     assert np.allclose(result0, result1)
