@@ -1,6 +1,17 @@
 use ndarray::{Array1, Array2, Order};
 use rayon::prelude::*;
 
+
+/// Swaps the bit at the specified `idx` position with the least significant bit (LSB) in the given value.
+///
+/// # Example
+/// ```rust
+/// let idx = 2;
+/// let value = 0b0110;
+/// let result = bit_swap0(idx, value);
+/// assert_eq!(result, 0b0011);
+/// ```
+///
 fn bit_swap0(idx: usize, value: usize) -> usize {
   let x = (value ^ (value >> idx)) & 1;
   value ^ ((x << idx) | x)
@@ -34,4 +45,24 @@ pub fn apply(m: &Array2<f32>, data: &Array1<f32>) -> Array1<f32> {
 
   // Fast flatten transposed.
   res.flatten_with_order(Order::ColumnMajor).into_owned()
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+  use ndarray::array;
+
+  #[test]
+  fn test_bitswap() {
+    assert_eq!(bit_swap0(2, 0b0110), 0b0011);
+  }
+
+  #[test]
+  fn test_multiply_m() {
+    let data = Array1::from_iter((1..=8).map(|i| i as f32));
+    let m = array![[1.0, 3.0], [2.0, 4.0]];
+    let result = apply(&m, &data);
+    let target = array![153.0, 351.0, 345.0, 791.0, 333.0, 763.0, 749.0, 1715.0];
+    assert_eq!(result, target);
+  }
 }
