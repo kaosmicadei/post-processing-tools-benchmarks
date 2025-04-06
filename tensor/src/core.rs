@@ -55,7 +55,7 @@ pub fn mat_vec_multiply(m: &Array2<f32>, data: &Array1<f32>) -> Array1<f32> {
   let mut tmp = res.clone();
 
   for i in 0..rank {
-    // Fast flatten: access the raw position through slice.
+    // Fast flatten: access the raw positions through slice.
     let raw_view = res
       .as_slice()  // WARNING! Only works with row major!
       .unwrap();
@@ -65,7 +65,7 @@ pub fn mat_vec_multiply(m: &Array2<f32>, data: &Array1<f32>) -> Array1<f32> {
       .par_iter_mut()
       .enumerate()
       .for_each(|(j, v)| *v = raw_view[bit_swap0(i, j)]);
-      // Since this as borrowed as mutable, the transformation propagates back
+      // Since this was borrowed as mutable, the transformation propagates back
       // to the `tmp` view.
 
     res.assign(&tmp.dot(m));
