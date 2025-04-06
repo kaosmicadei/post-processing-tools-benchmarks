@@ -17,7 +17,7 @@ fn bit_swap0(idx: usize, value: usize) -> usize {
   value ^ ((x << idx) | x)
 }
 
-pub fn apply(m: &Array2<f32>, data: &Array1<f32>) -> Array1<f32> {
+pub fn mat_vec_multiply(m: &Array2<f32>, data: &Array1<f32>) -> Array1<f32> {
   assert!(data.len().is_power_of_two(), "data must have 2^N elements");
   assert_eq!(m.dim(), (2, 2), "m must be a 2x2 matrix.");
 
