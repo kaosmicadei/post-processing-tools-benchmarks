@@ -44,9 +44,14 @@ fn bit_swap0(idx: usize, value: usize) -> usize {
 /// - Performs a bit-reversal permutations at each iteraction using `bit_swap0`.
 /// - Returns the result flattened in column-major order (equivalent to tranpse
 ///   then flatten).
-pub fn mat_vec_multiply(m: &Array2<f32>, data: &Array1<f32>) -> Array1<f32> {
-  assert!(data.len().is_power_of_two(), "data must have 2^N elements");
-  assert_eq!(m.dim(), (2, 2), "m must be a 2x2 matrix.");
+pub fn mat_vec_multiply(m: &Array2<f32>, data: &Array1<f32>) -> Result<Array1<f32>, String> {
+  if !data.len().is_power_of_two() {
+    return Err("data must have 2^N elements".to_string())
+  }
+
+  if m.dim() != (2, 2) {
+    return Err("m must be a 2x2 matrix.".to_string())
+  }
 
   let rank = (data.len() as f32).log2() as usize;
   let half_len = data.len() >> 1;
@@ -72,7 +77,7 @@ pub fn mat_vec_multiply(m: &Array2<f32>, data: &Array1<f32>) -> Array1<f32> {
   }
 
   // Fast flatten transposed.
-  res.flatten_with_order(Order::ColumnMajor).into_owned()
+  Ok(res.flatten_with_order(Order::ColumnMajor).into_owned())
 }
 
 
