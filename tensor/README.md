@@ -76,4 +76,4 @@ b''_{100} & b''_{101} & b''_{110} & b''_{111}
 \end{gather*}
 ```
 
-The final result is given by $`\text{vec}(\boldsymbol{B}''')`$.
+The final result is given by $`\text{vec}\left(\boldsymbol{B}'''^\intercal\right)`$.
