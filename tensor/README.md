@@ -6,8 +6,8 @@ For example, let's take $`\boldsymbol{b}`$ as the bitstring distribution of a th
 ```math
 \boldsymbol{b}^\intercal = 
 \begin{pmatrix}
-b_{000} & b_{010} & b_{001} & b_{011} &
-b_{100} & b_{110} & b_{101} & b_{111} 
+b_{000} & b_{001} & b_{010} & b_{011} &
+b_{100} & b_{101} & b_{110} & b_{111} 
 \end{pmatrix}
 ```
 
