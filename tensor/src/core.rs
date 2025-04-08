@@ -53,18 +53,21 @@ pub fn mat_vec_multiply(m: &Array2<f32>, data: &Array1<f32>) -> Result<Array1<f3
     return Err("m must be a 2x2 matrix.".to_string())
   }
 
-  let rank = (data.len() as f32).log2() as usize;
+  let rank = data.len().trailing_zeros() as usize;
   let half_len = data.len() >> 1;
 
-  let mut res = data.to_shape((half_len, 2)).unwrap();
+  let mut res = data.to_shape((half_len, 2)).expect("Fail to reshape `data`.");
   let mut tmp = res.clone();
 
   for i in 0..rank {
     // Fast flatten: access the raw positions through slice.
     let raw_view = res
       .as_slice()  // WARNING! Only works with row major!
-      .unwrap();
-    let raw_tmp = tmp.as_slice_mut().unwrap();
+      .expect("Array view must be in default order (row-major).");
+    
+    let raw_tmp = tmp
+      .as_slice_mut()
+      .expect("Array view must be in default order (row-major).");
 
     raw_tmp
       .par_iter_mut()
@@ -95,7 +98,7 @@ mod tests {
   fn test_multiply_m() {
     let m = array![[1.0, 3.0], [2.0, 4.0]];
     let data = Array1::from_iter((1..=8).map(|i| i as f32));
-    let result = mat_vec_multiply(&m, &data);
+    let result = mat_vec_multiply(&m, &data).unwrap();
     let expect = array![153.0, 351.0, 345.0, 791.0, 333.0, 763.0, 749.0, 1715.0];
     assert_eq!(result, expect);
   }
